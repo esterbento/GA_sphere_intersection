@@ -1,39 +1,51 @@
 # Sphere Intersection
 
-This project implements an algorithm to solve the problem of the intersection of $n$ spheres in $\mathbb{R}^n$, where $n$ is a natural number with $n \geq 2$. The problem is modeled using **Conformal Geometric Algebra (CGA)**, and the implementation is written in the **Julia** programming language.
+This project implements an algorithm to solve the problem of the intersection of $n$ spheres in $\mathbb{R}^n$, with $n \geq 2$. The problem is modeled using **Conformal Geometric Algebra (CGA)**, and the implementation is written in the **Julia** programming language.
+
+The repository also includes a method based on QR decomposition for comparison and an application of the proposed method to the Branch-and-Prune algorithm for the $K$-DMDGP.
+
+The examples are organized by dimension in the `fullrank`, `rankdeficient`, and `tests_BP` folders, which contain subfolders in the format `dim_n`.
+
 ## Installation via Git
 
-To use this project locally via Git:
+To use the project locally:
 
-1. **Clone the repository.**
-
-Open your terminal (Git Bash on Windows or Terminal on macOS/Linux) and run:
+1. **Clone the repository:**
 
 ```bash
 git clone https://github.com/esterbento/GA_sphere_intersection.git
 ```
 
 2. **Navigate to the project folder:**
+
 ```bash
 cd GA_sphere_intersection
 ```
 
-3. **Start the Julia REPL and load the files:**
+3. **Install BenchmarkTools in the Julia REPL:**
 
 ```julia
-include("src/build_problem.jl")
-include("src/sphere_intersection.jl")
-include("src/qr_factorization.jl")
+using Pkg
+Pkg.add("BenchmarkTools")
 ```
 
-You're all set! You can now generate examples and solve sphere intersection problems.
+4. **Load the project files:**
+
+```julia
+include("src/build_problem_PIE.jl")
+include("src/PIE_CGA.jl")
+include("src/PIE_QR.jl")
+include("src/build_problem_BP.jl")
+include("src/branch_and_prune.jl")
+```
+
+You can now generate examples and run the sphere intersection and Branch-and-Prune algorithms.
 
 ---
 
+## Sphere Intersection Examples
 
-## Examples
-
-The `build_problem` function generates test cases for sphere intersection problems in arbitrary dimensions.
+The `build_problem` function generates sphere intersection problem instances in arbitrary dimensions.
 
 ### Syntax
 
@@ -41,67 +53,93 @@ The `build_problem` function generates test cases for sphere intersection proble
 build_problem(dimension::Int, rank::Bool)
 ```
 
-- **`dimension`**: the problem's dimension (positive integer).
-- **`rank`** (optional):  
-  - `true` → generates an example with a **rank deficient** center matrix (rank $n-1$).  
-  - `false` (default) → generates an example with a **full rank** center matrix.
+- **`dimension`**: dimension of the problem;
+- **`rank`** (optional):
+  - `true` generates a rank-deficient instance;
+  - `false` (default) generates a full-rank instance.
 
-Example files are saved in the current working directory.
-
-### Generate an Example
-
-To generate a problem with dimension 3 and a full rank matrix:
+To generate a full-rank problem in dimension 3:
 
 ```julia
 build_problem(3)
 ```
 
-To generate a problem with dimension 5 and a rank deficient matrix:
+To generate a rank-deficient problem in dimension 5:
 
 ```julia
 build_problem(5, true)
 ```
 
----
+The generated file is saved in the current working directory.
 
-## Algorithm Execution
+## Sphere Intersection Execution
 
-If you generated a file using `build_problem`, it will be saved in the current directory with a name like:
-
-```
-problem_3_first_comp_sol_0.959977521807434_0.041049203988499317.txt
-```
-
-After that, you can solve the problem using either of the available methods.
-
-To solve using the main approach:
+To solve an instance using the CGA-based method:
 
 ```julia
-sphere_intersection("problem_3_first_comp_sol_0.959977521807434_0.041049203988499317.txt")
+PIE_CGA("file_name.txt")
 ```
-Or, alternatively, using the implemented QR factorization:
+
+To solve the same instance using the QR decomposition-based method:
 
 ```julia
-qr_factorization("problem_3_first_comp_sol_0.959977521807434_0.041049203988499317.txt")
+PIE_QR("file_name.txt")
 ```
 
-**Note:** Make sure to replace the filename with the actual name shown in your console or file explorer.
+Replace `file_name.txt` with the name of the file you want to solve.
 
-Both methods print the results to the console.
+## Running the Sphere Intersection Tests
 
-## Running the Test Scripts with the Repository Examples
-
-After loading the main functions (`sphere_intersection` and `qr_factorization`) in the Julia REPL as previously instructed, you can run the scripts that test the existing example files.
-
-**Important:** For the scripts to work correctly, navigate in your terminal to the folder containing the `.txt` files for the dimension and category you want to test. For example:
+After loading `PIE_CGA.jl` and `PIE_QR.jl`, navigate to the folder containing the `.txt` files for the desired dimension and category. For example:
 
 ```julia
 cd("examples/fullrank/dim_3")
 ```
 
-Then, in the Julia REPL, run:
+Then run:
 
 ```julia
-include("../../../src/compare_results.jl")
-include("../../../src/benchmark_tests.jl")
+include("../../../src/results_PIE.jl")
 ```
+
+To test the rank-deficient instances, navigate to the corresponding folder. For example:
+
+```julia
+cd("examples/rankdeficient/dim_3")
+```
+
+The `results_PIE.jl` file computes the errors and execution times of the CGA and QR methods.
+
+---
+
+## Branch-and-Prune
+
+The Branch-and-Prune implementation uses the sphere intersection method to solve instances of the $K$-DMDGP.
+
+To generate a Branch-and-Prune instance:
+
+```julia
+build_problem_BP(n)
+```
+
+To solve an existing instance:
+
+```julia
+solve_problem_BP("BP_file_name.txt")
+```
+
+## Running the Branch-and-Prune Tests
+
+After loading `PIE_CGA.jl` and `branch_and_prune.jl`, navigate to the folder containing the instances for the desired dimension. For example:
+
+```julia
+cd("examples/tests_BP/dim_3")
+```
+
+Then run:
+
+```julia
+include("../../../src/results_BP.jl")
+```
+
+The `results_BP.jl` file computes the errors, execution times, and number of solutions found for all instances in the selected folder.

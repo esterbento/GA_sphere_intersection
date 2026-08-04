@@ -1,6 +1,6 @@
 using LinearAlgebra
 
-function build_problem(n::Int,rank::Bool=false)
+function build_problem_PIE(n::Int,rank::Bool=false)
     P = Vector{Vector{Float64}}(undef,n)
     r = Vector{Float64}(undef,n)
     Psol = rand(n)
