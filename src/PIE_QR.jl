@@ -1,20 +1,6 @@
 using LinearAlgebra
-using DelimitedFiles
 
-function PIE_QR(nome_arquivo::String)
-    linhas = readlines(nome_arquivo)
-
-    # n: dimensão do espaço
-    n = parse(Int, strip(linhas[2]))
-
-    # P: matriz de pontos (cada coluna representa um ponto)
-    bloco_pontos = join(linhas[4:3+n], "\n")
-    P = readdlm(IOBuffer(bloco_pontos), ' ')
-
-    # r: vetor dos raios
-    linha_raios = replace(replace(linhas[5+n], '[' => ""), ']' => "")
-    r = parse.(Float64, split(linha_raios, ","))
-
+function PIE_QR(P::Array{Float64,2}, r::Vector{Float64}, n::Int)
     # Constrói a matriz A = [a_1 - a_n, ..., a_(n-1) - a_n]
     A = zeros(n, n-1)
 

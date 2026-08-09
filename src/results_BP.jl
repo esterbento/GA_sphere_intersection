@@ -34,8 +34,9 @@ for (i, file) in enumerate(files)
         # --------------------------------------------------
         # Cálculo do erro
         # --------------------------------------------------
+        n, N, pontos_iniciais, D, Psol = read_problem_BP(caminho)
 
-        solucoes, Psol = solve_problem_BP(caminho)
+        solucoes  = solve_problem_BP(n, N, pontos_iniciais, D)
 
         quantidade = length(solucoes)
 
@@ -79,7 +80,9 @@ for (i, file) in enumerate(files)
         # Benchmark
         # --------------------------------------------------
 
-        bench = @benchmark solve_problem_BP($caminho) seconds=180
+        n, N, pontos_iniciais, D, Psol = read_problem_BP(caminho)
+
+        bench = @benchmark solve_problem_BP($n, $N, $pontos_iniciais, $D) seconds=180
 
         println("\nBenchmark:")
         show(stdout, MIME"text/plain"(), bench)

@@ -2,6 +2,27 @@ using LinearAlgebra
 using BenchmarkTools
 using Statistics
 using Printf
+using DelimitedFiles
+
+function read_PIE(filename::String)
+    lines = readlines(filename)
+    # n: dimension of the space
+    n = parse(Int, strip(lines[2]))
+
+    # A: matrix of sphere centers (each row is a center)
+    points_block = join(lines[4:3+n], "\n")
+    A = readdlm(IOBuffer(points_block), ' ')
+
+    # r: vector of sphere radii
+    r_line = replace(replace(lines[5+n], '[' => ""), ']' => "")
+    r = parse.(Float64, split(r_line, ","))
+
+    # sol: expected solution vector
+    sol_line = replace(replace(lines[7+n], '[' => ""), ']' => "")
+    sol = parse.(Float64, split(sol_line, ","))
+
+    return n, A, r, sol 
+end
 
 # Lista apenas os arquivos das instâncias do PIE.
 files = filter(
@@ -31,8 +52,11 @@ for (i, file) in enumerate(files)
     println("Arquivo $(i): $file")
 
     try
-        x1, x2, sol = PIE_CGA(caminho)
-        z1, z2 = PIE_QR(caminho)
+        n, A, r, sol = read_PIE(caminho)
+
+        x1, x2 = PIE_CGA(A, r, n)
+
+        z1, z2 = PIE_QR(A, r, n)
 
         println("Solução exata:")
         println(sol)
@@ -82,8 +106,10 @@ for (i, file) in enumerate(files)
     println("Arquivo $(i): $file")
 
     try
-        bench_AG = @benchmark PIE_CGA($caminho) seconds=10
-        bench_QR = @benchmark PIE_QR($caminho) seconds=10
+        n, A, r, sol = read_PIE(caminho)
+
+        bench_AG = @benchmark PIE_CGA($A, $r, $n) seconds=30
+        bench_QR = @benchmark PIE_QR($A, $r, $n) seconds=30
 
         println("\nBenchmark do método AG:")
         show(stdout, MIME"text/plain"(), bench_AG)
@@ -115,8 +141,6 @@ for (i, file) in enumerate(files)
         println("Erro ao executar o benchmark:")
         println(error)
     end
-
-    println("--------------------------------------------------\n")
 end
 
 # ==================================================

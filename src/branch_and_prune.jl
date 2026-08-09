@@ -1,9 +1,9 @@
-using LinearAlgebra
+using LinearAlgebra 
 
 function viavel_BP(candidato, i, x, D)
     n = length(candidato)
 
-    @inbounds for j in 1:i-1
+    for j in 1:i-1
 
         # Calcula a distância sem criar o vetor
         # candidato - x[j].
@@ -32,34 +32,28 @@ function BP!(i, n, N, D, x, solucoes, C, r)
         return
     end
 
-    # Primeiro dos n predecessores imediatos.
+    # Preenche C e r com os n predecessores imediatos.
     primeiro_predecessor = i - n
 
-    # Preenche C e r sem criar o vetor predecessores.
-    @inbounds for k in 1:n
+    for k in 1:n
         predecessor = primeiro_predecessor + k - 1
-
         C[k, :] .= x[predecessor]
         r[k] = D[predecessor, i]
     end
 
-    # Algoritmo de interseção.
-    sol1, sol2 = PIE_CGA1(C, r)
+    # Calcula os candidatos para o ponto i.
+    sol1, sol2 = PIE_CGA(C, r)
 
-    # A tupla não cria um vetor de candidatos.
     for candidato in (sol1, sol2)
-
-        if viavel_BP( candidato, i, x, D)
-            # Não copiamos toda a estrutura x.
-            # Apenas substituímos as coordenadas do ponto i.
+        if viavel_BP(candidato, i, x, D)
             x[i] .= candidato
-
             BP!(i + 1, n, N, D, x, solucoes, C, r)
         end
     end
 
     return
 end
+
 
 
 function read_problem_BP(filename::String)
@@ -89,16 +83,10 @@ function read_problem_BP(filename::String)
         Vector{Vector{Float64}}(undef, n)
 
     for i in 1:n
-        valores = parse.(
-            Float64,
-            split(lines[initial_points_line + i])
-        )
+        valores = parse.( Float64, split(lines[initial_points_line + i]))
 
         if length(valores) != n
-            error(
-                "O ponto inicial $i possui $(length(valores)) " *
-                "coordenadas, mas deveria possuir $n."
-            )
+            error( "O ponto inicial $i possui $(length(valores)) " * "coordenadas, mas deveria possuir $n.")
         end
 
         pontos_iniciais[i] = valores
@@ -108,36 +96,23 @@ function read_problem_BP(filename::String)
     D = Matrix{Float64}(undef, N, N)
 
     for i in 1:N
-        valores = parse.(
-            Float64,
-            split(lines[matrix_line + i])
-        )
+        valores = parse.( Float64, split(lines[matrix_line + i]))
 
         if length(valores) != N
-            error(
-                "A linha $i da matriz possui $(length(valores)) " *
-                "elementos, mas deveria possuir $N."
-            )
+            error("A linha $i da matriz possui $(length(valores)) " * "elementos, mas deveria possuir $N.")
         end
 
         D[i, :] .= valores
     end
 
     # Realização usada na criação do problema.
-    Psol =
-        Vector{Vector{Float64}}(undef, N)
+    Psol = Vector{Vector{Float64}}(undef, N)
 
     for i in 1:N
-        valores = parse.(
-            Float64,
-            split(lines[solution_line + i])
-        )
+        valores = parse.(Float64,split(lines[solution_line + i]))
 
         if length(valores) != n
-            error(
-                "O ponto $i da solução possui $(length(valores)) " *
-                "coordenadas, mas deveria possuir $n."
-            )
+            error("O ponto $i da solução possui $(length(valores)) " * "coordenadas, mas deveria possuir $n.")
         end
 
         Psol[i] = valores
@@ -147,8 +122,7 @@ function read_problem_BP(filename::String)
 end
 
 
-function solve_problem_BP(filename::String)
-    n, N, pontos_iniciais, D, Psol = read_problem_BP(filename)
+function solve_problem_BP(n, N, pontos_iniciais, D)
 
     x = [zeros(Float64, n) for _ in 1:N]
 
@@ -166,5 +140,5 @@ function solve_problem_BP(filename::String)
 
     BP!(n + 1, n, N, D, x, solucoes, C, r)
 
-    return solucoes, Psol
+    return solucoes
 end
