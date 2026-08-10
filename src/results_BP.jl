@@ -3,10 +3,6 @@ using BenchmarkTools
 using Statistics
 using Printf
 
-
-function benchmark_BP(n, N, pontos_iniciais, D)
-    return @benchmark solve_problem_BP($n, $N, $pontos_iniciais, $D) seconds = 30
-end
 # Lista apenas os arquivos das instâncias do BP
 files = filter(
     file ->
