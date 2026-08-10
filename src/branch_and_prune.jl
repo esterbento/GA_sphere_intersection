@@ -42,7 +42,7 @@ function BP!(i, n, N, D, x, solucoes, C, r)
     end
 
     # Calcula os candidatos para o ponto i.
-    sol1, sol2 = PIE_CGA(C, r)
+    sol1, sol2 = PIE_CGA(C, r, n)
 
     for candidato in (sol1, sol2)
         if viavel_BP(candidato, i, x, D)

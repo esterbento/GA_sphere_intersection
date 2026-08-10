@@ -24,9 +24,16 @@ function read_PIE(filename::String)
     return n, A, r, sol 
 end
 
+function benchmark_PIE(A, r, n)
+    bench_AG = @benchmark PIE_CGA(C, rc, $n) setup=(C = copy($A); rc = copy($r)) evals=1 seconds=30
+
+    bench_QR = @benchmark PIE_QR(C, rc, $n) setup=(C = copy($A); rc = copy($r)) evals=1 seconds=30
+
+    return bench_AG, bench_QR
+end
+
 # Lista apenas os arquivos das instâncias do PIE.
-files = filter(
-    file -> endswith(file, ".txt"), readdir("."))
+files = filter(file -> endswith(file, ".txt"), readdir("."))
 
 println("\n=== Testes de erro e tempo da interseção de esferas ===\n")
 
@@ -54,9 +61,8 @@ for (i, file) in enumerate(files)
     try
         n, A, r, sol = read_PIE(caminho)
 
-        x1, x2 = PIE_CGA(A, r, n)
-
-        z1, z2 = PIE_QR(A, r, n)
+        x1, x2 = PIE_CGA(copy(A), copy(r), n)
+        z1, z2 = PIE_QR(copy(A), copy(r), n)
 
         println("Solução exata:")
         println(sol)
@@ -108,8 +114,7 @@ for (i, file) in enumerate(files)
     try
         n, A, r, sol = read_PIE(caminho)
 
-        bench_AG = @benchmark PIE_CGA($A, $r, $n) seconds=30
-        bench_QR = @benchmark PIE_QR($A, $r, $n) seconds=30
+        bench_AG, bench_QR = benchmark_PIE(A, r, n)
 
         println("\nBenchmark do método AG:")
         show(stdout, MIME"text/plain"(), bench_AG)
@@ -188,3 +193,4 @@ if !isempty(median_times_QR)
     @printf("Tempo mediano médio: %.2e segundos\n", mean(median_times_QR))
     @printf("Menor número de execuções: %d\n", minimum(num_runs_QR))
 end
+

@@ -1,8 +1,7 @@
 using LinearAlgebra
 # C = matriz formada pelos centros dispostos em linha
 # r = vetor dos raios
-function PIE_CGA(C::Array{Float64,2}, r::Vector{Float64}, n::Int)
-
+function PIE_CGA(B::Array{Float64,2}, f::Vector{Float64}, n::Int)
     d = copy(C[n, :])
 
     for i = 1:n-1

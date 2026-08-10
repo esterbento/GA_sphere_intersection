@@ -2,6 +2,11 @@ using LinearAlgebra
 using BenchmarkTools
 using Statistics
 using Printf
+
+
+function benchmark_BP(n, N, pontos_iniciais, D)
+    return @benchmark solve_problem_BP($n, $N, $pontos_iniciais, $D) seconds = 30
+end
 # Lista apenas os arquivos das instâncias do BP
 files = filter(
     file ->
@@ -9,7 +14,6 @@ files = filter(
         startswith(file, "BP_problem_"),
     readdir(".")
 )
-
 println("\n=== Testes de erro e tempo do Branch-and-Prune ===\n")
 
 # Menor erro obtido em cada instância
