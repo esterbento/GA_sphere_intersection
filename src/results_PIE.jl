@@ -25,9 +25,9 @@ function read_PIE(filename::String)
 end
 
 function benchmark_PIE(A, r, n)
-    bench_AG = @benchmark PIE_CGA(C, rc, $n) setup=(C = copy($A); rc = copy($r)) evals=1 seconds=30
+    bench_AG = @benchmark PIE_CGA(C, rc, $n) setup=(C = copy($A); rc = copy($r)) evals=1 seconds=1
 
-    bench_QR = @benchmark PIE_QR(C, rc, $n) setup=(C = copy($A); rc = copy($r)) evals=1 seconds=30
+    bench_QR = @benchmark PIE_QR(C, rc, $n) setup=(C = copy($A); rc = copy($r)) evals=1 seconds=1
 
     return bench_AG, bench_QR
 end

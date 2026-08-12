@@ -17,25 +17,27 @@ function PIE_QR(P::Array{Float64,2}, r::Vector{Float64}, n::Int)
     # Calcula o vetor c, conforme a equação (2.11)
     c = zeros(n-1)
 
+    rn2=r[n]^2
     for i = 1:n-1
-        c[i] = -0.5 * (r[i]^2 - r[n]^2 - norm(A[:, i], 2)^2)
+        c[i] = -0.5 * (r[i]^2 - rn2 - norm(A[:, i], 2)^2)
     end
 
     # Resolve o sistema linear da equação (2.13)
     y = (Rp') \ c
 
+    delta = rn2 - norm(y, 2)^2
     # Verifica as condições de interseção
-    if r[n]^2 - norm(y, 2)^2 < 0.0
+    if delta < 0.0
         println("A interseção é vazia.")
         return nothing
 
-    elseif abs(r[n]^2 - norm(y, 2)^2) < 1e-10
+    elseif abs(delta) < 1e-10
         z = 0
 
     else
         # Se o quadrado do raio for maior que o quadrado da norma de y,
         # calcula o valor de z
-        z = sqrt(r[n]^2 - norm(y, 2)^2)
+        z = sqrt(delta)
     end
 
     # Calcula os pontos de interseção
@@ -43,7 +45,9 @@ function PIE_QR(P::Array{Float64,2}, r::Vector{Float64}, n::Int)
     x2 = F.Q * [y; -z] + P'[:, n]  # Segundo ponto de interseção
 
     # Retorna uma ou duas soluções, dependendo de elas coincidirem ou não
-    if norm(x1 - x2) < 1.0e-10
+    d = x1 - x2
+
+    if dot(d, d) < 1.0e-20
         return x1
     else
         return x1, x2
