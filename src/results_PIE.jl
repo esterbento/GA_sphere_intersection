@@ -25,11 +25,11 @@ function read_PIE(filename::String)
 end
 
 function benchmark_PIE(A, r, n)
-    bench_AG = @benchmark PIE_CGA(C, rc, $n) setup=(C = copy($A); rc = copy($r)) evals=1 seconds=1
+    bench_AG = @benchmark interse(C, rc, $n) setup=(C = copy($A); rc = copy($r)) evals=1 seconds=1
 
-    bench_QR = @benchmark PIE_QR(C, rc, $n) setup=(C = copy($A); rc = copy($r)) evals=1 seconds=1
+    #bench_QR = @benchmark PIE_QR(C, rc, $n) setup=(C = copy($A); rc = copy($r)) evals=1 seconds=1
 
-    return bench_AG, bench_QR
+    return bench_AG#, bench_QR
 end
 
 # Lista apenas os arquivos das instâncias do PIE.
@@ -39,15 +39,15 @@ println("\n=== Testes de erro e tempo da interseção de esferas ===\n")
 
 # Menores erros obtidos em cada instância.
 min_errors_AG = Float64[]
-min_errors_QR = Float64[]
+#min_errors_QR = Float64[]
 
 # Tempos medianos de cada instância, em segundos.
 median_times_AG = Float64[]
-median_times_QR = Float64[]
+#median_times_QR = Float64[]
 
 # Números de execuções realizadas pelo BenchmarkTools.
 num_runs_AG = Int[]
-num_runs_QR = Int[]
+#num_runs_QR = Int[]
 
 # ==================================================
 # Cálculo dos erros
@@ -62,7 +62,7 @@ for (i, file) in enumerate(files)
         n, A, r, sol = read_PIE(caminho)
 
         x1, x2 = PIE_CGA(copy(A), copy(r), n)
-        z1, z2 = PIE_QR(copy(A), copy(r), n)
+        #z1, z2 = PIE_QR(copy(A), copy(r), n)
 
         println("Solução exata:")
         println(sol)
@@ -73,25 +73,25 @@ for (i, file) in enumerate(files)
         println("Solução 2 obtida pelo método AG:")
         println(x2)
 
-        println("Solução 1 obtida pelo método QR:")
-        println(z1)
+#        println("Solução 1 obtida pelo método QR:")
+#        println(z1)
 
-        println("Solução 2 obtida pelo método QR:")
-        println(z2)
+#        println("Solução 2 obtida pelo método QR:")
+#        println(z2)
 
         error_AG_1 = norm(sol - x1[1:length(sol)])^2
         error_AG_2 = norm(sol - x2[1:length(sol)])^2
-        error_QR_1 = norm(sol - z1)^2
-        error_QR_2 = norm(sol - z2)^2
+#        error_QR_1 = norm(sol - z1)^2
+#        error_QR_2 = norm(sol - z2)^2
 
         min_error_AG = min(error_AG_1, error_AG_2)
-        min_error_QR = min(error_QR_1, error_QR_2)
+#        min_error_QR = min(error_QR_1, error_QR_2)
 
         push!(min_errors_AG, min_error_AG)
-        push!(min_errors_QR, min_error_QR)
+#        push!(min_errors_QR, min_error_QR)
     println("--------------------------------------------------\n")
         @printf("Menor erro do método AG: %.2e\n", min_error_AG)
-        @printf("Menor erro do método QR: %.2e\n", min_error_QR)
+#        @printf("Menor erro do método QR: %.2e\n", min_error_QR)
 
     
     catch error

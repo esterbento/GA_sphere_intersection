@@ -58,3 +58,51 @@ end
 # Este algoritmo foi adaptado do artigo de Maioli.
 # A numeração das equações, como (2.11), (2.12) e (2.13),
 # segue a notação utilizada no artigo.
+
+function PIE_LU(P::Array{Float64,2}, r::Vector{Float64}, n::Int)
+   
+    # Calcula o vetor b
+    b = zeros(n)
+
+    for k = 1:n
+        b[k] = dot(P[k, :], P[k, :]) - r[k]^2 
+    end
+
+    e = ones(n)
+
+    F = lu(P)
+    u = F\e
+    v = F\b
+
+    # Produtos internos utilizados na equação quadrática.
+    p = 2-dot(u, v)
+    q = dot(u, u)
+    s = dot(v, v)
+
+    # Discriminante.
+    Δ = (p)^2 - q * s
+
+    if Δ < 0.0
+        error("There is not an intersection")
+    end
+
+    sq = sqrt(Δ)
+
+    # Valores de rho.
+    rho1 = (p- sq) / q
+    rho2 = (p - p + sq) / q
+
+    # Pontos de interseção.
+    x1 = 0.5 * (rho1 * u + v)
+    x2 = 0.5 * (rho2 * u + v)
+
+    # Verifica se as duas soluções coincidem.
+    d = x1 - x2
+
+    if dot(d, d) < 1.0e-20
+        return x1
+    else
+        return x1, x2
+    end
+end
+
