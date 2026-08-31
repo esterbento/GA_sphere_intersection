@@ -70,9 +70,10 @@ function PIE_CGA(C::Array{Float64,2}, r::Vector{Float64})
 
     # Se as duas soluções forem praticamente iguais,
     # retorna apenas uma
-    if norm(x1 - x2) < 1.0e-10
-        return x1
-    else
-        return x1, x2
-    end
+    return x1, x2
+    # if norm(x1 - x2) < 1.0e-10
+    #     return x1, Nothing
+    # else
+    #     return x1, x2
+    # end
 end
