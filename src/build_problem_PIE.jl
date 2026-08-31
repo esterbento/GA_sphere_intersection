@@ -1,5 +1,24 @@
 using LinearAlgebra
 
+function build_problem_PIE!(A, r, sol, rank :: Bool = false; rmin = 0.0, rmax = 1.0)
+
+    _, n = size(A)
+
+    sol .= rmin .+ (rmax - rmin) .* rand(n)
+
+    A .= rmin .+ (rmax - rmin) .* rand(n, n)
+    
+    # If is rank < n, then one column has to be dependent
+    (rank) && (A[3, :] .= rand() .* A[1, :])
+
+    # Talvez o correto seja eachcolumn?
+    map!(x -> norm(x - sol), r, eachrow(A))
+
+    return A, r
+
+end
+
+
 function build_problem_PIE(n::Int,rank::Bool=false)
     P = Vector{Vector{Float64}}(undef,n)
     r = Vector{Float64}(undef,n)
