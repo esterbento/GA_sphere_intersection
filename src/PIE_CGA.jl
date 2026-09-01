@@ -5,6 +5,8 @@ function PIE_CGA(C::Array{Float64,2}, r::Vector{Float64})
     n = length(r)
     d = copy(C[n, :])
     
+    flag = :twosol
+
     for i = 1:n-1
         C[i, :] .= C[i, :] - d
     end
@@ -40,8 +42,11 @@ function PIE_CGA(C::Array{Float64,2}, r::Vector{Float64})
 
     Δ = coefb^2 - 4.0 * coefa * coefc
     if Δ<0.0
-        error("There is not an intersection")
+        flag = :nosol
+        return flag, Nothing, Nothing
     end
+
+    (Δ < sqrt(eps(Float64))) && (flag = :onesol)
 
     sq = sqrt(Δ)
     # --------------------------------------------------
@@ -70,10 +75,6 @@ function PIE_CGA(C::Array{Float64,2}, r::Vector{Float64})
 
     # Se as duas soluções forem praticamente iguais,
     # retorna apenas uma
-    return x1, x2
-    # if norm(x1 - x2) < 1.0e-10
-    #     return x1, Nothing
-    # else
-    #     return x1, x2
-    # end
+    return flag, x1, x2
+
 end
