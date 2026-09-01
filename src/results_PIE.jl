@@ -4,6 +4,8 @@ using Statistics
 using Printf
 using DelimitedFiles
 
+using Random
+
 function read_PIE(filename::String)
     lines = readlines(filename)
     # n: dimension of the space
@@ -24,12 +26,59 @@ function read_PIE(filename::String)
     return n, A, r, sol 
 end
 
-function benchmark_PIE(A, r, n)
-    bench_AG = @benchmark interse(C, rc, $n) setup=(C = copy($A); rc = copy($r)) evals=1 seconds=1
+function benchmark_PIE(A, r, n, solver)
 
-    #bench_QR = @benchmark PIE_QR(C, rc, $n) setup=(C = copy($A); rc = copy($r)) evals=1 seconds=1
+    bench = @benchmark $solver(C, rc) setup=(C = copy($A); rc = copy($r)) evals=1 seconds=1
 
-    return bench_AG#, bench_QR
+    return bench
+end
+
+function quality_test_PIE(n, N, solver; seed = 4114453573, rank::Bool = false)
+
+    Random.seed!(seed)
+
+    A = Matrix{Float64}(undef, n, n)
+    r = Vector{Float64}(undef, n)
+    s = Vector{Float64}(undef, n)
+
+    min_errors = Vector{Float64}(undef, N)
+
+    for i = 1:N
+
+        build_problem_PIE!(A, r, s, rank)
+
+        flag, x1, x2 = solver(A, r)
+
+        (flag == :nosol) && println("Problema sem interseção.")
+
+        min_errors[i] = min(norm(s - x1)^2, norm(s - x2)^2)
+
+    end
+
+    return min_errors
+
+end
+
+function time_test_PIE(n, N, solver; seed = 4114453573, rank::Bool = false)
+
+    Random.seed!(seed)
+
+    A = Matrix{Float64}(undef, n, n)
+    r = Vector{Float64}(undef, n)
+    s = Vector{Float64}(undef, n)
+
+    benchmarks = Vector{Any}(undef, N)
+
+    for i = 1:N
+
+        build_problem_PIE!(A, r, s, rank)
+
+        benchmarks[i] = benchmark_PIE(A, r, n, solver)
+
+    end
+
+    return benchmarks
+
 end
 
 # Lista apenas os arquivos das instâncias do PIE.
